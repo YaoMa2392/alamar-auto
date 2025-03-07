@@ -26,7 +26,7 @@ public class argoAuto {
         driver.manage().window().maximize();
     }
 
-    @Test
+    @Test(priority = 1)
     public void testHomePageTitle() {
         driver.get(BASE_URL);
         String expectedTitle = "ARGO™ HT System | Automated Proteomics System";
@@ -34,8 +34,35 @@ public class argoAuto {
         Assert.assertTrue(actualTitle.contains(expectedTitle), "Home page title does not match!");
     }
 
-    @Test
+//    @Test (dependsOnMethods = "testHomePageTitle")
+    @Test(priority = 2)
     public void testImmBtn() {
+        try {
+            driver.get(BASE_URL);
+
+            // Locate the "Request a Quote" button and click
+            WebElement button = driver.findElement(By.xpath("//a[@href='https://alamarbio.com/contact-us/']//span[contains(text(),'request a Quote')]"));
+            Assert.assertNotNull(button, "Button Not Found");
+            button.click();
+
+            // Wait until the page's <h1> element with the text "Contact us" is visible
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[contains(@class, 'elementor-heading-title') and contains(text(), 'Contact us')]")));
+
+            // Verify page title
+            String expectedTitle = "A Silicon Valley Proteomics Startup Company: Alamar Biosciences Inc.";
+            String actualTitle = driver.getTitle();
+            Assert.assertTrue(actualTitle.contains(expectedTitle), "Quote page title does not match!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail("Exception occurred in testForm: " + e.getMessage());
+        }
+    }
+
+//    @Test(dependsOnMethods = "testImmBtn")
+    @Test(priority = 3)
+    public void testFillForm() {
         try {
             driver.get("https://alamarbio.com/contact-us/");
 
@@ -91,30 +118,7 @@ public class argoAuto {
         }
     }
 
-    @Test
-    public void testFillForm() {
-        try {
-            driver.get(BASE_URL);
 
-            // Locate the "Request a Quote" button and click
-            WebElement button = driver.findElement(By.xpath("//a[@href='https://alamarbio.com/contact-us/']//span[contains(text(),'request a Quote')]"));
-            Assert.assertNotNull(button, "Button Not Found");
-            button.click();
-
-            // Wait until the page's <h1> element with the text "Contact us" is visible
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[contains(@class, 'elementor-heading-title') and contains(text(), 'Contact us')]")));
-
-            // Verify page title
-            String expectedTitle = "A Silicon Valley Proteomics Startup Company: Alamar Biosciences Inc.";
-            String actualTitle = driver.getTitle();
-            Assert.assertTrue(actualTitle.contains(expectedTitle), "Quote page title does not match!");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail("Exception occurred in testForm: " + e.getMessage());
-        }
-    }
 
     @AfterClass
     public void tearDown() {
